@@ -13,8 +13,8 @@ module.exports = (env, argv) => {
     entry: './bootstrap.js',
     output: {
       path: distPath,
-      filename: "minimal_pk.js",
-      webassemblyModuleFilename: "minimal_pk.wasm"
+      filename: "wasm_admin.js",
+      webassemblyModuleFilename: "wasm_admin.wasm"
     },
     module: {
       rules: [
