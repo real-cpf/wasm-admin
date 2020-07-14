@@ -3,11 +3,12 @@ use serde_derive::Deserialize;
 use yew::callback::Callback;
 use yew::format::{Json, Nothing,Text};
 use yew::services::fetch::{FetchService, FetchTask, Request, Response};
-use yew::{html,Properties,Component, ComponentLink, Html, ShouldRender,InputData,FocusEvent};
+use yew::{html,Bridge,Bridged,Properties,Component, ComponentLink, Html, ShouldRender,InputData,MouseEvent,FocusEvent};
 
-
+use crate::route::AppRoute;
+use crate::app::Model;
 // use yew_router::prelude::*;
-// use yew_router::{route::Route,agent::RouteRequest::ChangeRoute, switch::Permissive, Switch};
+use yew_router::{ prelude::*,route::Route,agent::RouteRequest::ChangeRoute, switch::Permissive, Switch};
 
 
 // #[derive(PartialEq, Properties, Clone)]
@@ -22,6 +23,7 @@ pub struct Login{
     request:LoginApi,
     response: Callback<Result<UserInfo, Error>>,
     task: Option<FetchTask>,
+    router_agent: Box<dyn Bridge<RouteAgent>>,
     // props: Props,
 }
 
@@ -46,6 +48,7 @@ pub enum Msg {
     Ignore,
     UpdateEmail(String),
     UpdatePassword(String),
+    GoTo,
 }
 
 
@@ -91,6 +94,7 @@ impl Component for Login{
             request:req,
             response:link.callback(Msg::Response),
             task:None,
+            router_agent: RouteAgent::bridge(link.callback(|_| Msg::Ignore)),
 
         }
     }
@@ -114,9 +118,19 @@ impl Component for Login{
             Msg::Response(Ok(res)) => {
                 self.request.userinfo.loginid=res.loginid;
                 self.request.userinfo.passwd=res.passwd;
+                // self.router_agent.send(ChangeRoute(AppRoute::Model.into()));
+                // AppRoute::switch(AppRoute::Model.into());
+                let route = Route::new_no_state("/main");
+                AppRoute::switch(route);
                 // self.task = res;
+
             },
             Msg::Ignore => {},
+            Msg::GoTo=>{
+                // let route = Route::new_no_state("/main.html");
+                // AppRoute::switch(route);
+                self.router_agent.send(ChangeRoute(AppRoute::Model.into()));
+            },
         }
         true
     }
@@ -136,9 +150,13 @@ impl Component for Login{
         let oninput_password = self
         .link
         .callback(|ev: InputData| Msg::UpdatePassword(ev.value));
+        let btngoto= self
+        .link
+        .callback(|ev: MouseEvent| Msg::GoTo);
         html!{
             <>
             <div>{"login"}</div>
+            <input type="button" onclick=btngoto value="goto"/>
             <form onsubmit=onsubmit>
             <input type="text" name="loginid" oninput=oninput_email value=&self.request.userinfo.loginid placeholder="loginid" id="loginid"/>
             <input type="password" name="passwd" oninput=oninput_password value=&self.request.userinfo.passwd placeholder="passwd" id="passwd"/>
