@@ -38,11 +38,12 @@ impl Component for Model {
         html! {
             <div>
             <h1>{"hello word"}</h1>
-            <div>
-                <button onclick=self.link.callback(|_| Msg::Click)>{ "Click ( false )" }</button>
-                <button onclick=self.link.callback(|_| Msg::Click)>{ "Click ( wasm-bindgen )" }</button>
-                <p>{format!("Has been clicked: {}", self.clicked)}</p>
-            </div>
+            <h1>{"main "}</h1>
+            // <div>
+            //     <button onclick=self.link.callback(|_| Msg::Click)>{ "Click ( false )" }</button>
+            //     <button onclick=self.link.callback(|_| Msg::Click)>{ "Click ( wasm-bindgen )" }</button>
+            //     <p>{format!("Has been clicked: {}", self.clicked)}</p>
+            // </div>
             </div>
             
         }

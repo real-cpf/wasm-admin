@@ -76,25 +76,10 @@ impl Component for HomePage {
         html! {
            <>
            <div style="height: 50px;width: 100%;border-width: 1px;border-color: red;">
-                <div style="  float: left;width: 100px;">
-                    {"s"}
-                </div>
-                <div style="float: left;width: 100px;">
-                   <a  href="#"
-                   onclick=&self.go_to(HomeRoute::Login) 
-                   >
-                        { "登录" }
-                    </a>
-                </div>
-
-                <div style="float: left;width: 100px;">
-                <a  href="#"
-                onclick=&self.go_to(HomeRoute::Main) 
-                >
-                     { "Main" }
-                 </a>
-             </div>
+           <input class="top-box" type="button" onclick=&self.go_to(HomeRoute::Login)  value="login"/>
+           <input class="top-box" type="button" onclick=&self.go_to(HomeRoute::Main) value="register"/>
             </div>
+           
             <div style="">
             {
                 match HomeRoute::switch(self.route.clone()) {
@@ -106,6 +91,7 @@ impl Component for HomePage {
                 }
             }
             </div>
+            
             </>
         }
     }

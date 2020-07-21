@@ -1,12 +1,15 @@
 use anyhow::{anyhow, Error};
-use serde_derive::Deserialize;
+use serde::{Deserialize, Serialize};
 use yew::callback::Callback;
 use yew::format::{Json, Nothing,Text};
 use yew::services::fetch::{FetchService, FetchTask, Request, Response};
 use yew::{html,Bridge,Bridged,Properties,Component, ComponentLink, Html, ShouldRender,InputData,MouseEvent,FocusEvent};
 
-use crate::route::AppRoute;
+
+use crate::routes::Routes;
+// use crate::route::AppRoute;
 use crate::app::Model;
+use crate::home::HomeRoute;
 // use yew_router::prelude::*;
 use yew_router::{ prelude::*,route::Route,agent::RouteRequest::ChangeRoute, switch::Permissive, Switch};
 
@@ -19,11 +22,13 @@ use yew_router::{ prelude::*,route::Route,agent::RouteRequest::ChangeRoute, swit
 
 /// Login page
 pub struct Login{
+    
     link: ComponentLink<Self>,
     request:LoginApi,
     response: Callback<Result<UserInfo, Error>>,
     task: Option<FetchTask>,
     router_agent: Box<dyn Bridge<RouteAgent>>,
+    message:String,
     // props: Props,
 }
 
@@ -36,10 +41,17 @@ pub struct LoginApi{
     url:String,
     userinfo:UserInfo,
 }
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserInfo{
     pub loginid:String,
     pub passwd:String,
+}
+
+impl Into<Json<UserInfo>> for UserInfo{
+    fn into(self) -> Json<UserInfo> {
+        Json(self.into())
+    }
 }
 
 pub enum Msg {
@@ -53,7 +65,7 @@ pub enum Msg {
 
 
 
-    pub fn login(callback: Callback<Result<UserInfo, Error>>) -> FetchTask {
+    pub fn login(callback: Callback<Result<UserInfo, Error>>,login:UserInfo) -> FetchTask {
         let url ="http://localhost:9000/home/formlogin";
         let handler = move |response: Response<Json<Result<UserInfo, Error>>>| {
             let (meta, Json(data)) = response.into_parts();
@@ -66,9 +78,13 @@ pub enum Msg {
                 )))
             }
         };
-        
+        let mut builder=Request::builder()
+            .method("post")
+            .uri(url)
+            .header("Content-Type", "application/json");
+        let request=builder.body(login).unwrap();  
         let request = Request::post(url).body(Nothing).unwrap();
-        FetchService::fetch(request, handler.into()).unwrap()
+        // FetchService::fetch(request, handler.into()).unwrap()
     }
 
 
@@ -95,7 +111,7 @@ impl Component for Login{
             response:link.callback(Msg::Response),
             task:None,
             router_agent: RouteAgent::bridge(link.callback(|_| Msg::Ignore)),
-
+            message:String::from("******"),
         }
     }
 
@@ -103,7 +119,7 @@ impl Component for Login{
         match msg{
             Msg::Request=>{
                 self.request.userinfo.loginid=String::from("ok");
-                let task=login(self.response.clone());
+                let task=login(self.response.clone(),self.request.userinfo.clone());
                 self.task = Some(task);
                 
             },
@@ -114,23 +130,22 @@ impl Component for Login{
                 self.request.userinfo.passwd=passwd;
             },Msg::Response(Err(err)) => {
                 self.task = None;
+                self.message=String::from("error");
             },
             Msg::Response(Ok(res)) => {
                 self.request.userinfo.loginid=res.loginid;
                 self.request.userinfo.passwd=res.passwd;
-                // self.router_agent.send(ChangeRoute(AppRoute::Model.into()));
-                // AppRoute::switch(AppRoute::Model.into());
-                let route = Route::new_no_state("/main");
-                AppRoute::switch(route);
-                // self.task = res;
+                self.message=String::from("ok");
+                self.router_agent.send(ChangeRoute(Routes::Register.into()));
 
             },
             Msg::Ignore => {},
             Msg::GoTo=>{
                 // let route = Route::new_no_state("/main.html");
                 // AppRoute::switch(route);
-                self.router_agent.send(ChangeRoute(AppRoute::Model.into()));
+                self.router_agent.send(ChangeRoute(Routes::Register.into()));
             },
+
         }
         true
     }
@@ -156,10 +171,14 @@ impl Component for Login{
         html!{
             <>
             <div>{"login"}</div>
+            <RouterAnchor<HomeRoute> route=HomeRoute::Main>
+            { "click" }
+            </RouterAnchor<HomeRoute>>
             <input type="button" onclick=btngoto value="goto"/>
             <form onsubmit=onsubmit>
             <input type="text" name="loginid" oninput=oninput_email value=&self.request.userinfo.loginid placeholder="loginid" id="loginid"/>
             <input type="password" name="passwd" oninput=oninput_password value=&self.request.userinfo.passwd placeholder="passwd" id="passwd"/>
+            <div>{&self.message}</div>
             <input type="submit" value="login"/>
             </form>
             </>

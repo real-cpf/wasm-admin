@@ -3,13 +3,11 @@
 mod app;
 mod login;
 mod error;
-mod route;
-mod a_component;
-mod b_component;
-mod c_component;
-mod testroute;
-mod minroute;
+
 mod home;
+
+mod index;
+mod routes;
 
 use wasm_bindgen::prelude::*;
 
@@ -26,6 +24,7 @@ pub fn run_app() -> Result<(), JsValue> {
     // yew::start_app::<app::Model>();
     // yew::start_app::<login::Login>();
     // yew::start_app::<testroute::Model>();
-    yew::start_app::<home::HomePage>();
+    // yew::start_app::<home::HomePage>();
+    yew::start_app::<index::Index>();
     Ok(())
 }
