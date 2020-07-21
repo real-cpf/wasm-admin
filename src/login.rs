@@ -82,9 +82,9 @@ pub enum Msg {
             .method("post")
             .uri(url)
             .header("Content-Type", "application/json");
-        let request=builder.body(login).unwrap();  
+        // let request=builder.body(login).unwrap();  
         let request = Request::post(url).body(Nothing).unwrap();
-        // FetchService::fetch(request, handler.into()).unwrap()
+        FetchService::fetch(request, handler.into()).unwrap()
     }
 
 
