@@ -20,6 +20,7 @@ wasm-logger = "0.2"
 wee_alloc = { version = "0.4.4", optional = true }
 yew = "0.17"
 yew-router = { version="0.14.0", features = ["web_sys"] }
+yewtil={ version="0.3.0", features = ["fetch"] }
 thiserror = "1"
 anyhow = "1"
 js-sys = "0.3"
