@@ -2,7 +2,7 @@ use yew::{html, Component, ComponentLink, Html, MouseEvent, Properties, ShouldRe
 use yew_router::{route::Route, service::RouteService, Switch};
 use yew::prelude::*;
 
-use crate::login::Login;
+// use crate::login::Login;
 use crate::app::Model;
 
 pub struct HomePage {
@@ -83,7 +83,8 @@ impl Component for HomePage {
             <div style="">
             {
                 match HomeRoute::switch(self.route.clone()) {
-                    Some(HomeRoute::Login)=>html!{<Login/>},
+                    // Some(HomeRoute::Login)=>html!{<Login/>},
+                    Some(HomeRoute::Login)=>html!{ <div>{"404"}</div>},
                     Some(HomeRoute::Main)=>html!{<Model/>},
                     None=>html!{
                         <div>{"404"}</div>

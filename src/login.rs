@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Error};
+use anyhow::{anyhow, Error as AnyError};
 use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use yew::callback::Callback;
@@ -6,8 +6,8 @@ use yew::format::{Json, Nothing,Text};
 use yew::services::fetch::{FetchService, FetchTask, Request, Response};
 use yew::{html,Bridge,Bridged,Properties,Component, ComponentLink, Html, ShouldRender,InputData,MouseEvent,FocusEvent};
 
-use yewtil::fetch::{Fetch, FetchAction, FetchRequest, FetchState, Json as FetchJson, MethodBody};
-use yewtil::future::LinkFuture;
+// use yewtil::fetch::{Fetch, FetchAction, FetchRequest, FetchState, Json as FetchJson, MethodBody};
+// use yewtil::future::LinkFuture;
 
 use crate::http::Http;
 
@@ -18,7 +18,7 @@ use crate::home::HomeRoute;
 // use yew_router::prelude::*;
 use yew_router::{ prelude::*,route::Route,agent::RouteRequest::ChangeRoute, switch::Permissive, Switch};
 
-use crate::http::Error as HttpError;
+use crate::http::Error;
 
 // #[derive(PartialEq, Properties, Clone)]
 // pub struct Props {
@@ -34,10 +34,11 @@ pub struct LoginRequest{
 
 /// Login page
 pub struct Login{
-    login_req:Fetch<LoginRequest,UserInfo>,
+    new_login:Callback<Result<UserInfo, AnyError>>,
+    // login_req:Fetch<LoginRequest,UserInfo>,
     link: ComponentLink<Self>,
     request:LoginApi,
-    response: Callback<Result<UserInfo, HttpError>>,
+    response: Callback<Result<UserInfo, Error>>,
     task: Option<FetchTask>,
     router_agent: Box<dyn Bridge<RouteAgent>>,
     message:String,
@@ -47,79 +48,79 @@ pub struct Login{
 
 
 
-impl FetchRequest for LoginRequest{
+// impl FetchRequest for LoginRequest{
 
-    type RequestBody = UserInfo;
-    type ResponseBody=UserInfo;
-    type Format = FetchJson;
-    fn url(&self) -> String {
-        // Given that this is an external resource, this may fail sometime in the future.
-        // Please report any regressions related to this.
-        "http://localhost:9000/home/formlogin".to_string()
-    }
+//     type RequestBody = UserInfo;
+//     type ResponseBody=UserInfo;
+//     type Format = FetchJson;
+//     fn url(&self) -> String {
+//         // Given that this is an external resource, this may fail sometime in the future.
+//         // Please report any regressions related to this.
+//         "http://localhost:9000/home/formlogin".to_string()
+//     }
 
-    fn method(&self) -> MethodBody<Self::RequestBody> {
+//     fn method(&self) -> MethodBody<Self::RequestBody> {
         
-        MethodBody::Post(&self.userinfo)
+//         MethodBody::Post(&self.userinfo)
         
-        // MethodBody::Post(&'a UserInfo)
-    }
+//         // MethodBody::Post(&'a UserInfo)
+//     }
 
-    fn headers(&self) -> Vec<(String, String)> {
-        vec![]
-    }
+//     fn headers(&self) -> Vec<(String, String)> {
+//         vec![]
+//     }
 
-    fn use_cors(&self) -> bool {
-        true
-    }
+//     fn use_cors(&self) -> bool {
+//         true
+//     }
 
-}
+// }
 
 
- pub trait MyFetchRequest {
-     type RequestBody: Serialize;
-     type ResponseBody: DeserializeOwned;
-     fn path(&self) -> String;
-     fn method(&self) -> MethodBody<Self::RequestBody>;
- }
+//  pub trait MyFetchRequest {
+//      type RequestBody: Serialize;
+//      type ResponseBody: DeserializeOwned;
+//      fn path(&self) -> String;
+//      fn method(&self) -> MethodBody<Self::RequestBody>;
+//  }
 /// /// A wrapper to allow implementing a foreign trait generically for anything wrapped by it that meets
 /// /// the specified type bounds.
 /// /// This isn't ideal, and will not be required in the future after coherence rules are changed.
 /// /// https://github.com/rust-lang/rfcs/blob/master/text/2451-re-rebalancing-coherence.md
- pub struct LocalWrapper<T>(T);
+//  pub struct LocalWrapper<T>(T);
 
- impl <T: MyFetchRequest> FetchRequest for LocalWrapper<T> {
-     type RequestBody = T::RequestBody;
-     type ResponseBody = T::ResponseBody;
-     type Format = FetchJson; // Always serialize using json
+//  impl <T: MyFetchRequest> FetchRequest for LocalWrapper<T> {
+//      type RequestBody = T::RequestBody;
+//      type ResponseBody = T::ResponseBody;
+//      type Format = FetchJson; // Always serialize using json
 
-     fn url(&self) -> String {
-         // The origin will always be the same
-         format!("{}", self.0.path())
-     }
+//      fn url(&self) -> String {
+//          // The origin will always be the same
+//          format!("{}", self.0.path())
+//      }
 
-     fn method(&self) -> MethodBody<Self::RequestBody> {
-         self.0.method()
-     }
+//      fn method(&self) -> MethodBody<Self::RequestBody> {
+//          self.0.method()
+//      }
 
-     fn headers(&self) -> Vec<(String, String)> {
-         // Always attach the same headers.
-         vec![
-             ("Content-Type".to_string(), "application/json".to_string())
-         ]
-     }
- }
+//      fn headers(&self) -> Vec<(String, String)> {
+//          // Always attach the same headers.
+//          vec![
+//              ("Content-Type".to_string(), "application/json".to_string())
+//          ]
+//      }
+//  }
 
- pub struct ApplesRequest{
-    pub userinfo:UserInfo,
- }
- impl MyFetchRequest for ApplesRequest {
-     type RequestBody = (); type ResponseBody = ();
-     fn path(&self) -> String { "apples".to_string()}
-     fn method(&self) -> MethodBody<Self::RequestBody> {
-        MethodBody::Get
-    }
- }
+//  pub struct ApplesRequest{
+//     pub userinfo:UserInfo,
+//  }
+//  impl MyFetchRequest for ApplesRequest {
+//      type RequestBody = (); type ResponseBody = ();
+//      fn path(&self) -> String { "apples".to_string()}
+//      fn method(&self) -> MethodBody<Self::RequestBody> {
+//         MethodBody::Get
+//     }
+//  }
 
 
 
@@ -142,36 +143,41 @@ pub struct UserInfo{
 
 
 pub enum Msg {
-    LoginFetchState(FetchAction<UserInfo>),
+    // LoginFetchState(FetchAction<UserInfo>),
     Request,
-    Response(Result<UserInfo, HttpError>),
+    Response(Result<UserInfo, Error>),
+    NewResponse(Result<UserInfo, AnyError>),
     Ignore,
     UpdateEmail(String),
     UpdatePassword(String),
     GoTo,
+    NewReq,
 }
 
 
 
-    pub fn login(callback: Callback<Result<UserInfo, Error>>,login:UserInfo) -> FetchTask {
-        let url ="http://localhost:9000/home/formlogin";
-        let handler = move |response: Response<Json<Result<UserInfo, Error>>>| {
+    pub fn login(callback: Callback<Result<UserInfo, AnyError>>,login:UserInfo) -> FetchTask {
+        let url ="http://localhost:9000/home/formlogin1";
+        let handler = move |response: Response<Json<Result<UserInfo, AnyError>>>| {
             let (meta, Json(data)) = response.into_parts();
             if meta.status.is_success() {
                 callback.emit(data)
             } else {
                 callback.emit(Err(anyhow!(
-                    "{}: error",
-                    meta.status
+                    "err"
                 )))
             }
         };
         let mut builder=Request::builder()
-            .method("post")
+            .method("POST")
             .uri(url)
             .header("Content-Type", "application/json");
+        let u=UserInfo{
+            loginid:login.loginid,
+            passwd:"b".to_owned(),
+        };
         // let request=builder.body(login).unwrap();  
-        let request = Request::post(url).body(Nothing).unwrap();
+        let request = Request::post(url).header("Content-Type", "application/json").body(Json(&u)).unwrap();
         FetchService::fetch(request, handler.into()).unwrap()
     }
 
@@ -195,7 +201,8 @@ impl Component for Login{
         // task: Option<FetchTask>,
         // props: Props,
         Login{
-            login_req:Default::default(),
+            new_login:link.callback(Msg::NewResponse),
+            // login_req:Default::default(),
             link:link.clone(),
             request:req,
             response:link.callback(Msg::Response),
@@ -207,19 +214,26 @@ impl Component for Login{
 
     fn update(&mut self, msg: Self::Message)->ShouldRender{
         match msg{
-            Msg::LoginFetchState(state)=>{
+            // Msg::LoginFetchState(state)=>{
                 
                 
-                // self.login_req.request.userinfo.loginid="Str".to_owned();
-                self.login_req.apply(state);
+            //     // self.login_req.request.userinfo.loginid="Str".to_owned();
+            //     self.login_req.apply(state);
                 
-            },
+            // },
             Msg::Request=>{
                 // self.request.userinfo.loginid=String::from("ok");
                 // let task=login(self.response.clone(),self.request.userinfo.clone());
                 // self.task = Some(task);
                 self.task=None;
                 
+            },
+            Msg::NewResponse(Err(err))=>{
+                self.message=format!("err-{}",err)
+            },
+            Msg::NewResponse(Ok(data))=>{
+
+                self.message=format!("ok-{}-{}",data.loginid,data.passwd)
             },
             Msg::UpdateEmail(loginid)=>{
                 self.request.userinfo.loginid=loginid;
@@ -251,6 +265,10 @@ impl Component for Login{
                 self.task= Some(http.post("home/formlogin1".to_string(), self.request.userinfo.clone(), self.response.clone()));
 
             },
+            Msg::NewReq=>{
+                let task=login(self.new_login.clone(),self.request.userinfo.clone());
+                self.task = Some(task);
+            }
 
         }
         true
@@ -263,7 +281,7 @@ impl Component for Login{
     fn view(&self)->Html{
         let onsubmit = self.link.callback(|ev: FocusEvent| {
             ev.prevent_default(); /* Prevent event propagation */
-            Msg::Request
+            Msg::NewReq
         });
         let oninput_email = self
         .link
@@ -283,7 +301,7 @@ impl Component for Login{
             <input type="button" onclick=btngoto value="goto"/>
             <form onsubmit=onsubmit>
             <input type="text" name="loginid" oninput=oninput_email value=&self.request.userinfo.loginid placeholder="loginid" id="loginid"/>
-            <input type="password" name="passwd" oninput=oninput_password value=&self.request.userinfo.passwd placeholder="passwd" id="passwd"/>
+            <input type="text" name="passwd" oninput=oninput_password value=&self.request.userinfo.passwd placeholder="passwd" id="passwd"/>
             <div>{&self.message}</div>
             <input type="submit" value="login"/>
             </form>

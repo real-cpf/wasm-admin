@@ -1,7 +1,8 @@
 #![recursion_limit = "512"]
 
 mod app;
-mod login;
+// mod login;
+mod components;
 mod error;
 
 mod home;
@@ -10,6 +11,8 @@ mod index;
 mod routes;
 
 mod http;
+
+mod api;//will delete
 
 use wasm_bindgen::prelude::*;
 

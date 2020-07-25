@@ -1,6 +1,7 @@
 
 use yew_router::prelude::*;
-
+use yew::callback::Callback;
+use crate::components::LoginInfo;
 
 #[derive(Switch, Debug, Clone)]
 pub enum Routes {
