@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Error as AnyError};
+use anyhow::{anyhow, Error};
 use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use yew::callback::Callback;
@@ -9,6 +9,8 @@ use yew_router::{ prelude::*,route::Route,agent::RouteRequest::ChangeRoute, swit
 
 use std::fmt::{Formatter,Display};
 
+use crate::util::set_token;
+use crate::routes::Routes;
 
 #[derive(Default,Serialize, Deserialize,PartialEq, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -30,7 +32,7 @@ pub struct Props {
 
 pub struct LoginForm{
     request:LoginInfo,
-    response:Callback<Result<LoginInfo,AnyError>>,
+    response:Callback<Result<LoginInfo,Error>>,
     task: Option<FetchTask>,
     link:ComponentLink<Self>,
     route_agent: Box<dyn Bridge<RouteAgent>>,
@@ -40,7 +42,7 @@ pub struct LoginForm{
 
 pub enum Msg{
     LoginRequest,
-    LoginResponse(Result<LoginInfo,AnyError>),
+    LoginResponse(Result<LoginInfo,Error>),
     Ignore,
     UpdateLoginId(String),
     UpdatePassWd(String),
@@ -69,15 +71,20 @@ impl Component for LoginForm{
         match msg{
             Msg::Ignore=>{},
             Msg::LoginRequest=>{
-                let task=login(self.response.clone(),self.request.clone());
+                // let task=login_local(self.response.clone(),self.request.clone());
+                use crate::util::post_json;
+                let task=post_json(String::from("home/formlogin1"), self.request.clone(),self.response.clone());
                 self.task = Some(task);
             },
             Msg::LoginResponse(Err(err))=>{
                 self.message=format!("错误：{}",err);
             },
             Msg::LoginResponse(Ok(data))=>{
+                let data_token=data.clone();
+                set_token(Some(format!("{}-{}",data_token.loginid,data_token.passwd)));
                 self.props.callback.emit(data.clone());
                 self.message=format!("成功：{}",data.loginid);
+                self.route_agent.send(ChangeRoute(Routes::Home.into()));
             },
             Msg::UpdateLoginId(loginid)=>{
                 self.request.loginid=loginid;
@@ -109,9 +116,9 @@ impl Component for LoginForm{
     }
 }
 
-pub fn login(callback: Callback<Result<LoginInfo, AnyError>>,login:LoginInfo) -> FetchTask {
+pub fn login_local(callback: Callback<Result<LoginInfo, Error>>,login:LoginInfo) -> FetchTask {
     let url ="http://localhost:9000/home/formlogin1";
-    let handler = move |response: Response<Json<Result<LoginInfo, AnyError>>>| {
+    let handler = move |response: Response<Json<Result<LoginInfo, Error>>>| {
         let (meta, Json(data)) = response.into_parts();
         if meta.status.is_success() {
             callback.emit(data)

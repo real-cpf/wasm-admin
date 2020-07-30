@@ -12,7 +12,11 @@ mod routes;
 
 mod http;
 
-mod api;//will delete
+// mod api;//will delete
+
+mod api;
+
+mod util;
 
 use wasm_bindgen::prelude::*;
 

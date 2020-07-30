@@ -120,7 +120,7 @@ pub struct Login{
 //      fn method(&self) -> MethodBody<Self::RequestBody> {
 //         MethodBody::Get
 //     }
-//  }
+//  }Default
 
 
 
@@ -266,7 +266,9 @@ impl Component for Login{
 
             },
             Msg::NewReq=>{
-                let task=login(self.new_login.clone(),self.request.userinfo.clone());
+                // let task=login(self.new_login.clone(),self.request.userinfo.clone());
+                use crate::util::post_json;
+                let task=post_json(String::from("home/formlogin1"), self.request.userinfo.clone(), self.new_login.clone());
                 self.task = Some(task);
             }
 

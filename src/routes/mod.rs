@@ -5,6 +5,8 @@ use crate::components::LoginInfo;
 
 #[derive(Switch, Debug, Clone)]
 pub enum Routes {
+    #[to="/upload"]
+    Upload,
     #[to = "/login"]
     Login,
     #[to = "/register"]
