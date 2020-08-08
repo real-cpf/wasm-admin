@@ -1,7 +1,7 @@
 use dotenv_codegen::dotenv;
 use serde::{Deserialize, Serialize};
 use yew::callback::Callback;
-
+use yew::services::reader::{File, FileChunk, FileData, ReaderService, ReaderTask};
 use yew::format::{Json, Nothing,Text};
 use yew::services::fetch::{FetchService, FetchTask, Request, Response};
 use anyhow::{Error,anyhow};
@@ -10,8 +10,9 @@ const BASE_PATH: &str = dotenv!("BASE_PATH");
 
 #[derive(Default,Serialize, Deserialize,PartialEq, Clone, Debug)]
 pub struct FileForm{
-    file:Vec<u8>,
+   pub file:Vec<u8>,
 }
+
 
 
 // pub fn post_json<N,M>(path:String,body:N,callback:Callback<Result<M,Error>>)->FetchTask
@@ -73,6 +74,6 @@ pub fn post_json<N,M>(path:String,body:N,callback:Callback<Result<M,Error>>)->Fe
                 }))
             }
         };
-        let request = Request::post(format!("{}/{}",BASE_PATH,path)).header("Content-Type", "application/json").body(Json(&body)).unwrap();
+        let request = Request::post(format!("{}/{}",BASE_PATH,path)).header("Content-Type", "multipart/form-data").body(Json(&body)).unwrap();
         FetchService::fetch(request, handler.into()).unwrap()
 }
