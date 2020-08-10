@@ -33,7 +33,7 @@ impl Component for Footer{
             <footer>
                 <div>
                     <a href="/index.html"></a>
-                    <span class="attribution">
+                    <span class="footer-style">
                         { "© 2019.##############" }
                         <a href="#"> { "real_cpf" } </a>
                         { ". Code licensed under MIT.aaa" }

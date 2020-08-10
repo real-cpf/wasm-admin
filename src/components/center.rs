@@ -29,7 +29,7 @@ impl Component for Center{
 
     fn view(&self)->Html{
         html!{
-            <div>
+            <div style="height:600px;widht:800px;background-color:blue">
             {
                 "hello"
             }

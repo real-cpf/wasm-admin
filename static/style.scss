@@ -48,3 +48,18 @@ header div{
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
 }
+.footer-style{
+  width: 100%;
+  min-width: 1250px;
+  position: fixed;
+  z-index: 302;
+  bottom: 0;
+  left: 0;
+  height: 40px;
+  overflow: hidden;
+  zoom: 1;
+  margin: 0;
+  background-color: #fbfbfb;
+  text-align: center;
+  line-height: 40px;
+}

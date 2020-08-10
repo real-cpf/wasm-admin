@@ -16,12 +16,13 @@ use crate::app::Model;
 use crate::util::get_token;
 
 //conponents
-use crate::components::{Center,Header,Footer};
+use crate::components::{Center,Header,Footer,DBForm};
 
 pub struct Index {
     current_route: Option<Routes>,
     userinfo:Option<LoginInfo>,
     link: ComponentLink<Self>,
+    router_agent: Box<dyn Bridge<RouteAgent>>,
 }
 
 pub enum Msg{
@@ -34,12 +35,14 @@ impl Component for Index {
     type Properties = ();
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
+        let router_agent = RouteAgent::bridge(link.callback(Msg::RouteChange));
         let route_service: RouteService = RouteService::new();
         let mut route = route_service.get_route();
         Index {
             current_route:Routes::switch(route),
             userinfo:Default::default(),
             link:link,
+            router_agent,
         }
     }
 
@@ -60,10 +63,28 @@ impl Component for Index {
     }
 
     fn view(&self) -> Html {
+        let callback_login = self.link.callback(Msg::IsLogin);   
         html!{
             <>
             <Header></Header>
-            <Center></Center>
+            <div>
+                {
+                    if let Some(route)=&self.current_route{
+                        match route{
+                            Routes::Home=>html!{<HomePage/>},
+                            Routes::Login=>html!{<LoginForm  callback=callback_login />},
+                            Routes::Upload=>html!{<Upload/>},
+                            Routes::Register=>html!{<Model/>},
+                            Routes::Center=>html!{<Center/>},
+                            Routes::DBForm=>html!{<DBForm/>},
+                            // Routes::DBForm=>html!{{"dbform"}},
+                            _=> html! { <div style="color:red">{"error route"}</div> }
+                        }
+                    }else{
+                        html! { <div style="color:red">{"error route"}</div> }
+                    }
+                }
+            </div>
             <Footer></Footer>
             </>
         }

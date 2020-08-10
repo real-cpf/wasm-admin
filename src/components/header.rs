@@ -1,6 +1,8 @@
 use yew::{html, Component, ComponentLink, Html, MouseEvent, Properties, ShouldRender};
 use yew_router::{route::Route, service::RouteService, Switch};
 use yew::prelude::*;
+use yew_router::prelude::*;
+use crate::routes::Routes;
 
 pub struct Header{
     link:ComponentLink<Self>,
@@ -40,11 +42,18 @@ impl Component for Header{
                 </header>
 
                 <header class="menu">
-                    <a href="#" class="menu menu-button">{"menuA"}</a>
-                    <a href="#" class="menu menu-button">{"menuV"}</a>
-                    <a href="#" class="menu menu-button">{"menuX"}</a>
-                    <a href="#" class="menu menu-button">{"menuZ"}</a>
-                    <a href="#" class="menu menu-button">{"menuS"}</a>
+                    <RouterAnchor<Routes> route=Routes::Upload classes="menu menu-button">
+                    { "upload" }
+                    </RouterAnchor<Routes>>
+                    <RouterAnchor<Routes> route=Routes::Login classes="menu menu-button">
+                    { "login" }
+                    </RouterAnchor<Routes>>
+                    <RouterAnchor<Routes> route=Routes::Center classes="menu menu-button">
+                    { "center" }
+                    </RouterAnchor<Routes>>
+                    <RouterAnchor<Routes> route=Routes::DBForm classes="menu menu-button">
+                    { "dbform" }
+                    </RouterAnchor<Routes>>
                 </header>
             </div>
         }
