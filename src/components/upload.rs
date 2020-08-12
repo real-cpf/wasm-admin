@@ -108,17 +108,17 @@ impl Component for Upload {
                         //Files(FileList { obj: Object { obj: JsValue(FileList) } })
                         ConsoleService::debug(format!("{:?}",value).as_str());
                         
-                            // let mut result = Vec::new();
-                            // if let ChangeData::Files(files) = value {
-                            //     let files = js_sys::try_iter(&files)
-                            //         .unwrap()
-                            //         .unwrap()
-                            //         .into_iter()
-                            //         .map(|v| File::from(v.unwrap()));
-                            //     result.extend(files);
-                            // }
-                            // Msg::Files(result, flag)
-                            Msg::Ignore
+                            let mut result = Vec::new();
+                            if let ChangeData::Files(files) = value {
+                                let files = js_sys::try_iter(&files)
+                                    .unwrap()
+                                    .unwrap()
+                                    .into_iter()
+                                    .map(|v| File::from(v.unwrap()));
+                                result.extend(files);
+                            }
+                            Msg::Files(result, flag)
+                            // Msg::Ignore
                         })/>
                 </div>
                 <div>
