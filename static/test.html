@@ -118,12 +118,13 @@
 
 <div>
     <input type="text" name="inputs" id="inputs">
-    <button></button>
+    <button onclick="alert(1)"></button>
 </div>
 
 
 <footer>
     <div>
+        <a href="" style="display: none;"></a>
         <a href="/index.html"></a>
         <span class="footer-style">
             { "© 2019.##############" }
@@ -132,6 +133,26 @@
         </span>
     </div>
 </footer>
+<script>
+        // loadOneFile(fileId).then(res=>{
+        //   console.log(res)
+        //   const content = res.data;
+        //   const blob = new Blob([content]);
+        //   const fileName =_fileName;
+        //   if ("download" in document.createElement("a")) {
+        //     const elink = document.createElement("a");
+        //     elink.download = fileName;
+        //     elink.style.display = "none";
+        //     elink.href = URL.createObjectURL(blob);
+        //     document.body.appendChild(elink);
+        //     elink.click();
+        //     URL.revokeObjectURL(elink.href); // 释放URL 对象
+        //     document.body.removeChild(elink);
+        //     }else{
+        //       navigator.msSaveBlob(blob, fileName);
+        //     }
+        // })
 
+</script>
 </body>
 </html>

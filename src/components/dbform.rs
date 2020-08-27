@@ -1,7 +1,13 @@
+use web_sys::Blob;
+use web_sys::HtmlAnchorElement;
+use web_sys::Url;
 use yew::{html, Component,ChangeData, ComponentLink, Html, MouseEvent,Properties, ShouldRender};
 use yew_router::{route::Route, service::RouteService, Switch};
 use yew::prelude::*;
 use yew::virtual_dom::VNode;
+use wasm_bindgen::JsValue;
+use wasm_bindgen::JsCast;
+use yew::services::console::ConsoleService;
 
 use std::str::FromStr;
 
@@ -31,6 +37,7 @@ pub enum Msg{
     InsertTable(DataTable),
     InsertRow,
     UpdateScriptValue(String),
+    ExportTable(String),
 }
 
 
@@ -87,6 +94,41 @@ impl Component for DBForm{
 
             },Msg::UpdateScriptValue(script)=>{
                 self.script_value=script;
+            },Msg::ExportTable(value)=>{
+                self.show_log=value;
+                let table_vec=self.dataset.tables[self.now_table].data.clone();
+                
+                let  export_str=table_vec.join("\n");
+                ConsoleService::log(format!("{:?}",export_str).as_str());
+                
+                let temp =[export_str]; 
+                let seq_str=JsValue::from_serde(&temp).unwrap();
+                // let seq_str=JsValue::from(export_str.as_str());
+                let blob:Blob=Blob::new_with_str_sequence(&seq_str).unwrap();
+
+
+                // let buffer=table_vec.as_slice();
+                // let seq=JsValue::from_serde(&buffer).unwrap();
+                // let blob:Blob=Blob::new_with_buffer_source_sequence(&seq).unwrap();
+                
+                let url=Url::create_object_url_with_blob(&blob).unwrap();
+                ConsoleService::debug(format!("{:?}",url).as_str());
+                // HtmlAnchorElement
+                // HtmlAnchorElement
+                let window = web_sys::window().expect("no global `window` exists");
+                let document = window.document().expect("should have a document on window");
+                let body = document.body().expect("document should have a body");
+                
+                let val_a = document.create_element("a").unwrap();
+                // HtmlAnchorElement::
+                let aa:&HtmlAnchorElement=JsCast::dyn_ref::<HtmlAnchorElement>(&val_a).unwrap();
+                aa.set_download("文件.txt");
+                aa.set_href(&url.as_str());
+                aa.set_attribute("style","'display: none;'").unwrap();
+                body.append_child(&aa).unwrap();
+                aa.click();
+                Url::revoke_object_url(&aa.href()).unwrap();
+                
             }
         }
         true
@@ -107,6 +149,11 @@ impl Component for DBForm{
         let script_value_change=&self.link.callback(|ev: InputData|{
             Msg::UpdateScriptValue(ev.value)
         });
+
+        let export_now_table=&self.link.callback(|_| {
+            let s=String::from("exporting");
+            Msg::ExportTable(s)});
+
         let insert_row_value=&self.link.callback(|_| {Msg::InsertRow });
         html!{
             <div>
@@ -121,9 +168,12 @@ impl Component for DBForm{
             <input oninput=script_value_change type="text" name="inputs"  id="inputs" value=&self.script_value  />
             <button onclick=insert_row_value >{"新增"}</button>
             </div>
-            
+
+            <button onclick=export_now_table >{"导出"}</button>
             <div><span>{"当前选择表："}</span>
             <select name="now-table" class="select-style" onchange=select_change id="now-table">
+            
+            
             // <option value=0>{"第一个"}</option>
             // <option value=1>{"第二个"}</option>
             // <option value=2>{"第三个"}</option>
