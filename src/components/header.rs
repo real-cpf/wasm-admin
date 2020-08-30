@@ -54,6 +54,9 @@ impl Component for Header{
                     <RouterAnchor<Routes> route=Routes::DBForm classes="menu menu-button">
                     { "dbform" }
                     </RouterAnchor<Routes>>
+                    <RouterAnchor<Routes> route=Routes::WsPage classes="menu menu-button">
+                    { "WsPage" }
+                    </RouterAnchor<Routes>>
                 </header>
             </div>
         }

@@ -16,7 +16,7 @@ use crate::app::Model;
 use crate::util::get_token;
 
 //conponents
-use crate::components::{Center,Header,Footer,DBForm};
+use crate::components::{Center,Header,Footer,DBForm,WsPage};
 
 pub struct Index {
     current_route: Option<Routes>,
@@ -77,6 +77,7 @@ impl Component for Index {
                             Routes::Register=>html!{<Model/>},
                             Routes::Center=>html!{<Center/>},
                             Routes::DBForm=>html!{<DBForm/>},
+                            Routes::WsPage=>html!{<WsPage/>},
                             // Routes::DBForm=>html!{{"dbform"}},
                             _=> html! { <div style="color:red">{"error route"}</div> }
                         }
